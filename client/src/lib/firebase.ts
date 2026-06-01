@@ -1,5 +1,12 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // TODO: Replace with your Firebase config from the Firebase Console
@@ -30,8 +37,20 @@ export const loginWithGoogle = async () => {
     return result.user;
   } catch (error) {
     console.error("Login failed", error);
-    return null;
+    throw error;
   }
+};
+
+export const registerWithEmail = async (email: string, pass: string) => {
+  if (!auth) throw new Error("Firebase not configured");
+  const result = await createUserWithEmailAndPassword(auth, email, pass);
+  return result.user;
+};
+
+export const loginWithEmail = async (email: string, pass: string) => {
+  if (!auth) throw new Error("Firebase not configured");
+  const result = await signInWithEmailAndPassword(auth, email, pass);
+  return result.user;
 };
 
 export const logout = async () => {
@@ -41,3 +60,4 @@ export const logout = async () => {
 };
 
 export { auth, db, isConfigured };
+

@@ -22,8 +22,8 @@
   <div class="app" id="app">
     
     <!-- Header -->
-    <header class="header">
-      <div class="header__brand">
+    <header class="header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px 32px;">
+      <div class="header__brand" style="display: flex; align-items: center; gap: 16px;">
         <div class="header__logo">
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="28" height="28" rx="8" stroke="url(#logo-gradient)" stroke-width="2.5"/>
@@ -37,9 +37,20 @@
             </defs>
           </svg>
         </div>
-        <h1 class="header__title">Reel<span class="header__title--accent">Brain</span></h1>
+        <div>
+          <h1 class="header__title">Reel<span class="header__title--accent">Brain</span></h1>
+          <p class="header__tagline">Your AI agent for extracting gold from reels</p>
+        </div>
       </div>
-      <p class="header__tagline">Your AI agent for extracting gold from reels</p>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <button onclick="window.location.href='/'" class="btn btn--secondary" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; transition: all 0.2s;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 6px;"><path d="m15 18-6-6 6-6"/></svg>
+          Back to Home
+        </button>
+        <button id="btn-logout" class="btn btn--secondary" style="display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); padding: 8px 16px; border-radius: 8px; color: #f87171; cursor: pointer; transition: all 0.2s;">
+          Logout
+        </button>
+      </div>
     </header>
 
     <!-- Input Section -->
@@ -243,8 +254,31 @@
          // Expose to global window object for app.js to use
          window.firebaseUser = user;
          window.firebaseDb = db;
-         if (user && window.loadSummaries) {
-             window.loadSummaries();
+         
+         const logoutBtn = document.getElementById('btn-logout');
+         if (user) {
+            if (logoutBtn) logoutBtn.style.display = 'block';
+            if (window.loadSummaries) window.loadSummaries();
+         } else {
+            if (logoutBtn) logoutBtn.style.display = 'none';
+         }
+       });
+       
+       // Expose logout function
+       window.firebaseLogout = async () => {
+         try {
+           await signOut(auth);
+           window.location.href = '/';
+         } catch(e) {
+           console.error("Logout failed", e);
+         }
+       };
+       
+       // Bind logout button click
+       document.addEventListener('DOMContentLoaded', () => {
+         const logoutBtn = document.getElementById('btn-logout');
+         if (logoutBtn) {
+           logoutBtn.addEventListener('click', window.firebaseLogout);
          }
        });
     }
