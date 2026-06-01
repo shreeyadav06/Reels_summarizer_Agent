@@ -114,9 +114,9 @@ export default function App() {
       <div className="flex flex-col md:flex-row items-stretch justify-center gap-8 z-10">
         
         {/* Option 1: Login */}
-        <GlowCard glowColor="purple" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8">
-          <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 border border-purple-500/30">
-            <LogIn size={32} className="text-purple-400" />
+        <GlowCard glowColor="insta" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8">
+          <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+            <LogIn size={32} className="text-white" />
           </div>
           <h3 className="text-2xl font-bold mb-3">Save & Access</h3>
           <p className="text-gray-400 text-sm mb-8 flex-1">
@@ -131,9 +131,9 @@ export default function App() {
         </GlowCard>
 
         {/* Option 2: Guest Mode */}
-        <GlowCard glowColor="blue" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8">
-          <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6 border border-cyan-500/30">
-            <User size={32} className="text-cyan-400" />
+        <GlowCard glowColor="insta" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8">
+          <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+            <User size={32} className="text-white" />
           </div>
           <h3 className="text-2xl font-bold mb-3">Try as Guest</h3>
           <p className="text-gray-400 text-sm mb-8 flex-1">

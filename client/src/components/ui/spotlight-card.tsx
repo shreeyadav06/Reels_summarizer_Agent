@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, ReactNode } from 'react';
+import React, { useEffect, useRef, ReactNode, useState } from 'react';
 
 interface GlowCardProps {
   children: ReactNode;
   className?: string;
-  glowColor?: 'blue' | 'purple' | 'green' | 'red' | 'orange';
+  glowColor?: 'blue' | 'purple' | 'green' | 'red' | 'orange' | 'insta';
   size?: 'sm' | 'md' | 'lg';
   width?: string | number;
   height?: string | number;
-  customSize?: boolean; // When true, ignores size prop and uses width/height or className
+  customSize?: boolean;
 }
 
 const glowColorMap = {
@@ -15,7 +15,8 @@ const glowColorMap = {
   purple: { base: 280, spread: 300 },
   green: { base: 120, spread: 200 },
   red: { base: 0, spread: 200 },
-  orange: { base: 30, spread: 200 }
+  orange: { base: 30, spread: 200 },
+  insta: { base: 310, spread: 150 } // Pinkish-purple to cyan/orange range
 };
 
 const sizeMap = {
@@ -27,7 +28,7 @@ const sizeMap = {
 const GlowCard: React.FC<GlowCardProps> = ({ 
   children, 
   className = '', 
-  glowColor = 'blue',
+  glowColor = 'insta',
   size = 'md',
   width,
   height,
@@ -35,6 +36,7 @@ const GlowCard: React.FC<GlowCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const syncPointer = (e: PointerEvent) => {
@@ -54,10 +56,9 @@ const GlowCard: React.FC<GlowCardProps> = ({
 
   const { base, spread } = glowColorMap[glowColor];
 
-  // Determine sizing
   const getSizeClasses = () => {
     if (customSize) {
-      return ''; // Let className or inline styles handle sizing
+      return '';
     }
     return sizeMap[size];
   };
@@ -67,11 +68,11 @@ const GlowCard: React.FC<GlowCardProps> = ({
       '--base': base,
       '--spread': spread,
       '--radius': '14',
-      '--border': '3',
-      '--backdrop': 'hsl(0 0% 60% / 0.12)',
-      '--backup-border': 'var(--backdrop)',
+      '--border': '2',
+      '--backdrop': 'hsl(0 0% 10% / 0.8)',
+      '--backup-border': 'hsl(0 0% 20%)',
       '--size': '200',
-      '--outer': '1',
+      '--outer': isHovered ? '1' : '0',
       '--border-size': 'calc(var(--border, 2) * 1px)',
       '--spotlight-size': 'calc(var(--size, 150) * 1px)',
       '--hue': 'calc(var(--base) + (var(--xp, 0) * var(--spread, 0)))',
@@ -88,9 +89,9 @@ const GlowCard: React.FC<GlowCardProps> = ({
       border: 'var(--border-size) solid var(--backup-border)',
       position: 'relative' as const,
       touchAction: 'none' as const,
+      transition: 'border-color 0.3s ease',
     };
 
-    // Add width and height if provided
     if (width !== undefined) {
       baseStyles.width = typeof width === 'number' ? `${width}px` : width;
     }
@@ -117,6 +118,8 @@ const GlowCard: React.FC<GlowCardProps> = ({
       mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
       mask-clip: padding-box, border-box;
       mask-composite: intersect;
+      opacity: var(--outer, 0);
+      transition: opacity 0.3s ease;
     }
     
     [data-glow]::before {
@@ -142,7 +145,8 @@ const GlowCard: React.FC<GlowCardProps> = ({
       position: absolute;
       inset: 0;
       will-change: filter;
-      opacity: var(--outer, 1);
+      opacity: var(--outer, 0);
+      transition: opacity 0.3s ease;
       border-radius: calc(var(--radius) * 1px);
       border-width: calc(var(--border-size) * 20);
       filter: blur(calc(var(--border-size) * 10));
@@ -163,6 +167,8 @@ const GlowCard: React.FC<GlowCardProps> = ({
       <div
         ref={cardRef}
         data-glow
+        onPointerEnter={() => setIsHovered(true)}
+        onPointerLeave={() => setIsHovered(false)}
         style={getInlineStyles() as React.CSSProperties}
         className={`
           ${getSizeClasses()}
