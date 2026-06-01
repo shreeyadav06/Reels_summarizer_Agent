@@ -65,7 +65,7 @@ Vercel is the recommended option for deploying the Vite React frontend.
 5. Add your `VITE_API_BASE_URL` environment variable pointing to your deployed backend URL.
 6. Click Deploy.
 
-### Backend (Render / Railway / Fly.io)
+### Backend (Render)
 
 Vercel's free tier serverless functions are not suitable for the backend because they have a 10-second timeout and do not support global system dependencies like `yt-dlp`. 
 
