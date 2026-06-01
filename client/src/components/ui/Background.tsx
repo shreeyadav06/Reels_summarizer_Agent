@@ -14,13 +14,14 @@ const Background = () => {
     
     // Set size to window dimensions
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // optimize performance
+    const pixelRatio = Math.min(window.devicePixelRatio, 2);
+    renderer.setPixelRatio(pixelRatio); // optimize performance
     container.appendChild(renderer.domElement);
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
         iTime: { value: 0 },
-        iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+        iResolution: { value: new THREE.Vector2(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio) }
       },
       vertexShader: `
         void main() {
@@ -103,7 +104,7 @@ const Background = () => {
 
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
-      material.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
+      material.uniforms.iResolution.value.set(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio);
     };
     window.addEventListener('resize', handleResize);
 
