@@ -45,7 +45,34 @@ Without yt-dlp, you can still upload video files directly.
 
 | Layer | Tech |
 |-------|------|
-| Frontend | Vanilla HTML/CSS/JS |
+| Frontend | React, Vite, Tailwind CSS, Framer Motion |
 | Backend | Node.js + Express |
 | AI | Google Gemini 2.0 Flash |
 | Storage | JSON file |
+
+## Deployment
+
+Deploying the application requires hosting the frontend and backend separately due to the backend's dependency on Python packages (`yt-dlp`, `instaloader`) for downloading videos.
+
+### Frontend (Vercel)
+
+Vercel is the recommended option for deploying the Vite React frontend.
+
+1. Push your code to GitHub.
+2. Go to Vercel and import your repository.
+3. Vercel will automatically detect **Vite**.
+4. Set the Root Directory to `client/`.
+5. Add your `VITE_API_BASE_URL` environment variable pointing to your deployed backend URL.
+6. Click Deploy.
+
+### Backend (Render / Railway / Fly.io)
+
+Vercel's free tier serverless functions are not suitable for the backend because they have a 10-second timeout and do not support global system dependencies like `yt-dlp`. 
+
+We recommend deploying the backend using a Docker container on platforms like Render:
+
+1. Use the provided Docker configuration to build the environment with Node.js, Python, `yt-dlp`, and `instaloader`.
+2. Connect your repository to Render as a "Web Service".
+3. Set the root directory to `server/`.
+4. Render will automatically build the environment using the Dockerfile.
+5. Add your `GEMINI_API_KEY` to the environment variables on Render.
