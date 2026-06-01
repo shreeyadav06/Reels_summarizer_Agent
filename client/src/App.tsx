@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { GlowCard } from './components/ui/spotlight-card';
+import Background from './components/ui/Background';
 import { LogIn, User, LogOut, ArrowRight, Video, Sparkles, X, Mail, Key } from 'lucide-react';
 import { auth, loginWithGoogle, registerWithEmail, loginWithEmail, logout, isConfigured } from './lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -71,7 +72,8 @@ export default function App() {
 
   // Landing Page
   return (
-    <div className="min-h-screen w-full bg-[#0a0a0a] text-white flex flex-col items-center p-4 overflow-x-hidden relative">
+    <div className="min-h-screen w-full text-white flex flex-col items-center p-4 overflow-x-hidden relative">
+      <Background />
       {/* Header */}
       <header className="w-full max-w-6xl mx-auto flex justify-center items-center py-8 z-10">
         <div className="flex items-center gap-3">
@@ -93,10 +95,6 @@ export default function App() {
           </h1>
         </div>
       </header>
-
-      {/* Background gradients */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[120px] pointer-events-none" />
       
       <div className="text-center z-10 mt-12 mb-16 max-w-3xl">
         <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6 text-sm text-cyan-400">
