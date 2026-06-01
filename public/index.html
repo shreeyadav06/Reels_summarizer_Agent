@@ -20,24 +20,24 @@
       <!-- Empty div for left column to balance the grid -->
       <div></div>
       
-      <div class="header__brand" style="display: flex; align-items: center; gap: 16px; justify-content: center;">
-        <div class="header__logo">
-          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="2" width="28" height="28" rx="8" stroke="url(#logo-gradient)" stroke-width="2.5"/>
-            <circle cx="16" cy="16" r="7" stroke="url(#logo-gradient)" stroke-width="2.5"/>
-            <circle cx="23.5" cy="8.5" r="2" fill="url(#logo-gradient)"/>
-            <defs>
-              <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
-                <stop stop-color="#a855f7"/>
-                <stop offset="1" stop-color="#06b6d4"/>
-              </linearGradient>
-            </defs>
-          </svg>
+      <div class="header__brand" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+          <div class="header__logo" style="width: 32px; height: 32px;">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+              <rect x="2" y="2" width="28" height="28" rx="8" stroke="url(#logo-gradient)" stroke-width="2.5"/>
+              <circle cx="16" cy="16" r="7" stroke="url(#logo-gradient)" stroke-width="2.5"/>
+              <circle cx="23.5" cy="8.5" r="2" fill="url(#logo-gradient)"/>
+              <defs>
+                <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                  <stop stop-color="#a855f7"/>
+                  <stop offset="1" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h1 class="header__title" style="margin: 0;">Reel<span class="header__title--accent">Brain</span></h1>
         </div>
-        <div>
-          <h1 class="header__title">Reel<span class="header__title--accent">Brain</span></h1>
-          <p class="header__tagline">Your AI agent for extracting gold from reels</p>
-        </div>
+        <p class="header__tagline" style="margin: 0;">Your AI agent for extracting gold from reels</p>
       </div>
       <div style="display: flex; gap: 12px; align-items: center; justify-content: flex-end;">
         <button onclick="window.location.href='/'" class="btn btn--secondary" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; transition: all 0.2s;">

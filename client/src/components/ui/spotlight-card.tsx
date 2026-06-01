@@ -16,7 +16,7 @@ const glowColorMap = {
   green: { base: 120, spread: 200 },
   red: { base: 0, spread: 200 },
   orange: { base: 30, spread: 200 },
-  insta: { base: 310, spread: 150 } // Pinkish-purple to cyan/orange range
+  insta: { base: 210, spread: 20 } // Professional sleek tech cyan/silver
 };
 
 const sizeMap = {
@@ -67,6 +67,8 @@ const GlowCard: React.FC<GlowCardProps> = ({
     const baseStyles: React.CSSProperties & Record<string, string | number> = {
       '--base': base,
       '--spread': spread,
+      '--saturation': '60',
+      '--lightness': '65',
       '--radius': '14',
       '--border': '2',
       '--backdrop': 'hsl(0 0% 10% / 0.8)',
