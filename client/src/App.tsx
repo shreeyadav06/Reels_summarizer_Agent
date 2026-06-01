@@ -102,26 +102,6 @@ export default function App() {
           <p className="text-lg md:text-xl text-gray-300 mb-8 font-light leading-relaxed">
             Instantly summarize posts, extract recipes, find coupons, and save internship links from any Instagram Reel or short video.
           </p>
-          
-          {/* Feature Highlights */}
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-sm md:text-base">
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
-              <Brain size={18} className="text-purple-400" />
-              <span className="font-medium">Contextual AI Analysis</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
-              <Sparkles size={18} className="text-cyan-400" />
-              <span className="font-medium">Smart Categorization</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
-              <Clock size={18} className="text-amber-400" />
-              <span className="font-medium">Instant Transcription</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
-              <Shield size={18} className="text-emerald-400" />
-              <span className="font-medium">Secure Cloud Sync</span>
-            </div>
-          </div>
         </div>
 
         {/* Primary CTA */}
@@ -173,6 +153,29 @@ export default function App() {
           </button>
         </GlowCard>
 
+      </div>
+
+      {/* Feature Highlights (Moved below cards) */}
+      <div className="mt-16 max-w-4xl w-full text-center">
+        <h3 className="text-xl font-bold mb-8 text-gray-200">How it works</h3>
+        <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-sm md:text-base">
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+            <Brain size={18} className="text-purple-400" />
+            <span className="font-medium">Contextual AI Analysis</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+            <Sparkles size={18} className="text-cyan-400" />
+            <span className="font-medium">Smart Categorization</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+            <Clock size={18} className="text-amber-400" />
+            <span className="font-medium">Instant Transcription</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+            <Shield size={18} className="text-emerald-400" />
+            <span className="font-medium">Secure Cloud Sync</span>
+          </div>
+        </div>
       </div>
       </div>
 
