@@ -11,7 +11,7 @@ import { getFirestore } from "firebase/firestore";
 
 // TODO: Replace with your Firebase config from the Firebase Console
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAGR5YFSzd0jr9Df7hKSEa9vin1p_7aeno",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "reelbrain-agent.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "reelbrain-agent",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "reelbrain-agent.firebasestorage.app",
