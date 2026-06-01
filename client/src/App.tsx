@@ -71,12 +71,24 @@ export default function App() {
 
   // Landing Page
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center p-4 overflow-x-hidden relative">
+      {/* Header */}
+      <header className="w-full max-w-6xl mx-auto flex justify-center items-center py-8 z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg p-2 shadow-lg">
+            <Video size={28} className="text-white" />
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Reel<span className="text-cyan-400">Brain</span>
+          </h1>
+        </div>
+      </header>
+
       {/* Background gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/20 blur-[120px] pointer-events-none" />
       
-      <div className="text-center z-10 mb-16 max-w-3xl">
+      <div className="text-center z-10 mt-12 mb-16 max-w-3xl">
         <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6 text-sm text-cyan-400">
           <Sparkles size={16} /> <span>AI-Powered Extraction</span>
         </div>
@@ -92,7 +104,7 @@ export default function App() {
       <div className="flex flex-col md:flex-row items-stretch justify-center gap-8 z-10">
         
         {/* Option 1: Login */}
-        <GlowCard glowColor="purple" className="flex flex-col items-center text-center w-full max-w-sm h-auto p-8 hover:-translate-y-2 transition-transform duration-300">
+        <GlowCard glowColor="purple" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8 hover:scale-[1.02] transition-transform duration-300">
           <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 border border-purple-500/30">
             <LogIn size={32} className="text-purple-400" />
           </div>
@@ -109,7 +121,7 @@ export default function App() {
         </GlowCard>
 
         {/* Option 2: Guest Mode */}
-        <GlowCard glowColor="blue" className="flex flex-col items-center text-center w-full max-w-sm h-auto p-8 hover:-translate-y-2 transition-transform duration-300">
+        <GlowCard glowColor="blue" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8 hover:scale-[1.02] transition-transform duration-300">
           <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6 border border-cyan-500/30">
             <User size={32} className="text-cyan-400" />
           </div>
