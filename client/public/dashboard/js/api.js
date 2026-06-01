@@ -2,8 +2,7 @@
  * API Client — fetch wrapper for ReelBrain backend
  */
 const API = {
-  baseUrl: '/api/reels',
-
+  baseUrl: 'https://reel-summarizer-backend.onrender.com/api/reels',
   async analyzeUpload(file) {
     const formData = new FormData();
     formData.append('video', file);

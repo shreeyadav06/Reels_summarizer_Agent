@@ -34,7 +34,7 @@ export default function App() {
     try {
       const loggedInUser = await loginWithGoogle();
       if (loggedInUser) {
-        window.location.href = 'http://localhost:3005/dashboard';
+        window.location.href = '/dashboard/index.html';
       }
     } catch (err: any) {
       setAuthError(err.message || 'Failed to login with Google');
@@ -50,14 +50,14 @@ export default function App() {
       } else {
         await loginWithEmail(email, password);
       }
-      window.location.href = 'http://localhost:3005/dashboard';
+      window.location.href = '/dashboard/index.html';
     } catch (err: any) {
       setAuthError(err.message || 'Authentication failed. Check your credentials.');
     }
   };
 
   const handleGuest = () => {
-    window.location.href = 'http://localhost:3005/dashboard';
+    window.location.href = '/dashboard/index.html';
   };
 
   const handleLogout = async () => {
