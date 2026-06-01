@@ -11,13 +11,13 @@ import { getFirestore } from "firebase/firestore";
 
 // TODO: Replace with your Firebase config from the Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyAGR5YFSzd0jr9Df7hKSEa9vin1p_7aeno",
-  authDomain: "reelbrain-agent.firebaseapp.com",
-  projectId: "reelbrain-agent",
-  storageBucket: "reelbrain-agent.firebasestorage.app",
-  messagingSenderId: "19619603809",
-  appId: "1:19619603809:web:d6d599669b5502f7f55120",
-  measurementId: "G-HH3TMS48Y6"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "reelbrain-agent.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "reelbrain-agent",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "reelbrain-agent.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "19619603809",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:19619603809:web:d6d599669b5502f7f55120",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-HH3TMS48Y6"
 };
 
 // Initialize Firebase only if the apiKey is actually provided (prevents crashes before setup)
