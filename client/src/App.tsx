@@ -75,7 +75,7 @@ export default function App() {
     <div className="min-h-screen w-full text-white flex flex-col items-center p-4 overflow-x-hidden relative">
       <Background />
       {/* Header */}
-      <header className="w-full max-w-6xl mx-auto flex justify-center items-center py-8 z-10">
+      <header className="w-full max-w-6xl mx-auto flex justify-center items-center py-4 z-10">
         <div className="flex items-center gap-3">
           <div>
             <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
@@ -91,21 +91,18 @@ export default function App() {
             </svg>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">
-            Reel<span className="text-cyan-400">Brain</span>
+            Reel<span className="bg-gradient-to-br from-purple-500 to-cyan-400 text-transparent bg-clip-text">Brain</span>
           </h1>
         </div>
       </header>
       
-      <div className="text-center z-10 mt-12 mb-16 max-w-3xl">
-        <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6 text-sm text-cyan-400">
-          <Sparkles size={16} /> <span>AI-Powered Extraction</span>
-        </div>
+      <div className="text-center z-10 mt-2 mb-8 max-w-3xl">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
           Extract Gold from <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Instagram Reels</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-          Instantly summarize posts, extract recipes, find coupons, and save internship links from any reel or short video.
+          Instantly summarize posts, extract recipes, find coupons, and save internship links from any Instagram Reel or short video.
         </p>
       </div>
 
