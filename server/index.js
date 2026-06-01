@@ -18,15 +18,14 @@ app.use('/api/reels', reelsRouter);
 // Serve the old vanilla JS frontend at /dashboard
 app.use('/dashboard', express.static(path.join(__dirname, '..', 'public')));
 
-// Serve the new React frontend at / (We will build the React app into 'client/dist')
-app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
+// Simple health check for the root URL
+app.get('/', (req, res) => {
+  res.send('ReelBrain API is running!');
+});
 
-// SPA fallback for React router (if used)
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/') || req.path.startsWith('/dashboard/')) {
-    return res.status(404).send('Not found');
-  }
-  res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+// 404 handler for any other unrecognized routes
+app.use((req, res) => {
+  res.status(404).send('Not found');
 });
 
 app.listen(PORT, () => {
