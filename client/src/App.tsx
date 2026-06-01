@@ -74,37 +74,47 @@ export default function App() {
   return (
     <div className="min-h-screen w-full text-white flex flex-col items-center p-4 overflow-x-hidden relative">
       <Background />
-      {/* Header */}
-      <header className="w-full max-w-6xl mx-auto flex justify-center items-center py-4 z-10">
-        <div className="flex items-center gap-3">
-          <div>
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
-              <rect x="2" y="2" width="28" height="28" rx="8" stroke="url(#logo-gradient)" strokeWidth="2.5"/>
-              <circle cx="16" cy="16" r="7" stroke="url(#logo-gradient)" strokeWidth="2.5"/>
-              <circle cx="23.5" cy="8.5" r="2" fill="url(#logo-gradient)"/>
-              <defs>
-                <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
-                  <stop stopColor="#a855f7"/>
-                  <stop offset="1" stopColor="#06b6d4"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight">
+      {/* Hero Section (100vh) */}
+      <div className="w-full min-h-screen flex flex-col items-center justify-center relative z-10 px-4 pt-16 pb-24">
+        {/* Logo & Title */}
+        <div className="flex flex-col items-center mb-6">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4">
+            <rect x="2" y="2" width="28" height="28" rx="8" stroke="url(#logo-gradient)" strokeWidth="2.5"/>
+            <circle cx="16" cy="16" r="7" stroke="url(#logo-gradient)" strokeWidth="2.5"/>
+            <circle cx="23.5" cy="8.5" r="2" fill="url(#logo-gradient)"/>
+            <defs>
+              <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                <stop stopColor="#a855f7"/>
+                <stop offset="1" stopColor="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-none mb-2">
             Reel<span className="bg-gradient-to-br from-purple-500 to-cyan-400 text-transparent bg-clip-text">Brain</span>
           </h1>
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            Extract Gold.
+          </h2>
         </div>
-      </header>
-      
-      <div className="text-center z-10 mt-2 mb-8 max-w-3xl">
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
-          Extract Gold from <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Instagram Reels</span>
-        </h1>
-        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-          Instantly summarize posts, extract recipes, find coupons, and save internship links from any Instagram Reel or short video.
-        </p>
+        
+        {/* Tagline */}
+        <div className="text-center max-w-2xl mb-12">
+          <p className="text-lg md:text-xl text-gray-400">
+            Instantly summarize posts, extract recipes, find coupons, and save internship links from any Instagram Reel or short video.
+          </p>
+        </div>
+
+        {/* Primary CTA */}
+        <button 
+          onClick={() => setShowLoginModal(true)}
+          className="bg-white text-black font-bold text-lg py-4 px-8 rounded-full hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+        >
+          Go to Dashboard <ArrowRight size={20} />
+        </button>
       </div>
+
+      {/* Features / Login Options Section (Below the fold) */}
+      <div className="w-full min-h-[50vh] flex flex-col items-center justify-center py-20 relative z-10 px-4">
 
       <div className="flex flex-col md:flex-row items-stretch justify-center gap-8 z-10">
         
@@ -143,6 +153,7 @@ export default function App() {
           </button>
         </GlowCard>
 
+      </div>
       </div>
 
       {/* Login Modal */}
@@ -233,6 +244,15 @@ export default function App() {
                 {isRegistering ? 'Log in' : 'Create one'}
               </button>
             </p>
+            
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <button 
+                onClick={handleGuest}
+                className="w-full bg-transparent border border-white/20 hover:bg-white/5 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                Continue as Guest <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
       )}
