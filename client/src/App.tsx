@@ -114,7 +114,7 @@ export default function App() {
       <div className="flex flex-col md:flex-row items-stretch justify-center gap-8 z-10">
         
         {/* Option 1: Login */}
-        <GlowCard glowColor="purple" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8 hover:scale-[1.02] transition-transform duration-300">
+        <GlowCard glowColor="purple" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8">
           <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6 border border-purple-500/30">
             <LogIn size={32} className="text-purple-400" />
           </div>
@@ -131,7 +131,7 @@ export default function App() {
         </GlowCard>
 
         {/* Option 2: Guest Mode */}
-        <GlowCard glowColor="blue" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8 hover:scale-[1.02] transition-transform duration-300">
+        <GlowCard glowColor="blue" className="flex flex-col items-center text-center w-full max-w-[320px] h-auto p-8">
           <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 flex items-center justify-center mb-6 border border-cyan-500/30">
             <User size={32} className="text-cyan-400" />
           </div>
