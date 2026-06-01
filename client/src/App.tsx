@@ -71,12 +71,22 @@ export default function App() {
 
   // Landing Page
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center p-4 overflow-x-hidden relative">
+    <div className="min-h-screen w-full bg-[#0a0a0a] text-white flex flex-col items-center p-4 overflow-x-hidden relative">
       {/* Header */}
       <header className="w-full max-w-6xl mx-auto flex justify-center items-center py-8 z-10">
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg p-2 shadow-lg">
-            <Video size={28} className="text-white" />
+          <div>
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
+              <rect x="2" y="2" width="28" height="28" rx="8" stroke="url(#logo-gradient)" strokeWidth="2.5"/>
+              <circle cx="16" cy="16" r="7" stroke="url(#logo-gradient)" strokeWidth="2.5"/>
+              <circle cx="23.5" cy="8.5" r="2" fill="url(#logo-gradient)"/>
+              <defs>
+                <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                  <stop stopColor="#a855f7"/>
+                  <stop offset="1" stopColor="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight">
             Reel<span className="text-cyan-400">Brain</span>
