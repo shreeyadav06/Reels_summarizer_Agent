@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GlowCard } from './components/ui/spotlight-card';
 import Background from './components/ui/Background';
-import { LogIn, User, LogOut, ArrowRight, Video, Sparkles, X, Mail, Key } from 'lucide-react';
+import { LogIn, User, LogOut, ArrowRight, Video, Sparkles, X, Mail, Key, Brain, Shield, Clock } from 'lucide-react';
 import { auth, loginWithGoogle, registerWithEmail, loginWithEmail, logout, isConfigured } from './lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
@@ -99,9 +99,29 @@ export default function App() {
         
         {/* Tagline */}
         <div className="text-center max-w-2xl mb-12">
-          <p className="text-lg md:text-xl text-gray-400">
+          <p className="text-lg md:text-xl text-gray-300 mb-8 font-light leading-relaxed">
             Instantly summarize posts, extract recipes, find coupons, and save internship links from any Instagram Reel or short video.
           </p>
+          
+          {/* Feature Highlights */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 text-sm md:text-base">
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+              <Brain size={18} className="text-purple-400" />
+              <span className="font-medium">Contextual AI Analysis</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+              <Sparkles size={18} className="text-cyan-400" />
+              <span className="font-medium">Smart Categorization</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+              <Clock size={18} className="text-amber-400" />
+              <span className="font-medium">Instant Transcription</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2.5 rounded-full text-gray-300 backdrop-blur-sm shadow-xl">
+              <Shield size={18} className="text-emerald-400" />
+              <span className="font-medium">Secure Cloud Sync</span>
+            </div>
+          </div>
         </div>
 
         {/* Primary CTA */}
