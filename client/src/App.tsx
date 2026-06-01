@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { GlowCard } from './components/ui/spotlight-card';
-import Background from './components/ui/Background';
+const Background = lazy(() => import('./components/ui/Background'));
 import { LogIn, User, LogOut, ArrowRight, Video, Sparkles, X, Mail, Key, Brain, Shield, Clock } from 'lucide-react';
 import { auth, loginWithGoogle, registerWithEmail, loginWithEmail, logout, isConfigured } from './lib/firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
@@ -73,7 +73,9 @@ export default function App() {
   // Landing Page
   return (
     <div className="min-h-screen w-full text-white flex flex-col items-center p-4 overflow-x-hidden relative">
-      <Background />
+      <Suspense fallback={<div className="fixed inset-0 w-full h-full -z-10 pointer-events-none" style={{ background: '#0a0a0a' }} />}>
+        <Background />
+      </Suspense>
       {/* Hero Section (100vh) */}
       <div className="w-full min-h-screen flex flex-col items-center justify-center relative z-10 px-4 pt-16 pb-24">
         {/* Logo & Title */}
