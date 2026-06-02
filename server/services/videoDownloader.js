@@ -89,22 +89,32 @@ function cleanupFile(filePaths) {
   try {
     const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
     paths.forEach(filePath => {
-      if (filePath && fs.existsSync(filePath)) {
-        // Prevent path traversal by strictly verifying the path falls within UPLOADS_DIR
-        const safeRoot = fs.realpathSync(UPLOADS_DIR);
-        const resolvedPath = fs.realpathSync(filePath);
-        
-        if (!resolvedPath.startsWith(safeRoot)) {
-          console.warn("Security warning: Attempted to clean up file outside of uploads directory:", filePath);
-          return;
+      if (!filePath) return;
+      
+      // Prevent path traversal by strictly verifying the path falls within UPLOADS_DIR
+      // We must use path.resolve BEFORE any fs calls to prevent existsSync from traversing
+      const safeRoot = path.resolve(UPLOADS_DIR);
+      const resolvedPath = path.resolve(safeRoot, filePath);
+      
+      if (!resolvedPath.startsWith(safeRoot)) {
+        console.warn("Security warning: Attempted to clean up file outside of uploads directory:", filePath);
+        return;
+      }
+
+      if (fs.existsSync(resolvedPath)) {
+        const realPath = fs.realpathSync(resolvedPath);
+        // Double check after following symlinks
+        if (!realPath.startsWith(fs.realpathSync(safeRoot))) {
+           console.warn("Security warning: Symlink escape attempt:", filePath);
+           return;
         }
 
-        if (fs.statSync(resolvedPath).isDirectory()) {
-          fs.rmSync(resolvedPath, { recursive: true, force: true });
+        if (fs.statSync(realPath).isDirectory()) {
+          fs.rmSync(realPath, { recursive: true, force: true });
         } else {
-          fs.unlinkSync(resolvedPath);
+          fs.unlinkSync(realPath);
           // Check if parent directory is a UUID dir and empty, delete it
-          const parentDir = path.dirname(resolvedPath);
+          const parentDir = path.dirname(realPath);
           if (parentDir !== safeRoot && parentDir.startsWith(safeRoot)) {
              const remaining = fs.readdirSync(parentDir);
              if (remaining.length === 0 || remaining.every(f => f.endsWith('.txt') || f.endsWith('.json.xz'))) {

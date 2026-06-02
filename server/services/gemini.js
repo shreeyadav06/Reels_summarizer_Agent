@@ -4,6 +4,18 @@ const path = require('path');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+const UPLOADS_DIR = path.resolve(__dirname, '..', 'uploads');
+
+function validatePath(filePath) {
+  if (!filePath) throw new Error("Invalid file path");
+  const safeRoot = path.resolve(UPLOADS_DIR);
+  const resolvedPath = path.resolve(safeRoot, filePath);
+  if (!resolvedPath.startsWith(safeRoot)) {
+    throw new Error("Security Error: Path traversal attempt");
+  }
+  return fs.realpathSync(resolvedPath);
+}
+
 const EXTRACTION_PROMPT = `You are an expert content analyst AI agent. Analyze this media (an Instagram Reel, Post, or short video) and extract ALL important, actionable information from it.
 
 You MUST return a valid JSON object (no markdown, no code fences, just raw JSON) with this exact structure:
@@ -134,9 +146,10 @@ async function analyzeVideo(videoPaths) {
   const parts = [EXTRACTION_PROMPT];
 
   for (const vPath of paths) {
-    const videoData = fs.readFileSync(vPath);
+    const safePath = validatePath(vPath);
+    const videoData = fs.readFileSync(safePath);
     const base64Video = videoData.toString('base64');
-    const ext = path.extname(vPath).toLowerCase();
+    const ext = path.extname(safePath).toLowerCase();
     
     const mimeMap = {
       '.mp4': 'video/mp4',
@@ -199,7 +212,8 @@ async function analyzeVideoLarge(videoPath) {
     return analyzeVideo(videoPath);
   }
 
-  const ext = path.extname(videoPath).toLowerCase();
+  const safePath = validatePath(videoPath);
+  const ext = path.extname(safePath).toLowerCase();
   const mimeMap = {
     '.mp4': 'video/mp4',
     '.mov': 'video/quicktime',
@@ -212,9 +226,9 @@ async function analyzeVideoLarge(videoPath) {
   };
   const mimeType = mimeMap[ext] || 'video/mp4';
 
-  const uploadResult = await fileManager.uploadFile(videoPath, {
+  const uploadResult = await fileManager.uploadFile(safePath, {
     mimeType,
-    displayName: path.basename(videoPath),
+    displayName: path.basename(safePath),
   });
 
   // Wait for processing
