@@ -90,13 +90,22 @@ function cleanupFile(filePaths) {
     const paths = Array.isArray(filePaths) ? filePaths : [filePaths];
     paths.forEach(filePath => {
       if (filePath && fs.existsSync(filePath)) {
-        if (fs.statSync(filePath).isDirectory()) {
-          fs.rmSync(filePath, { recursive: true, force: true });
+        // Prevent path traversal by strictly verifying the path falls within UPLOADS_DIR
+        const safeRoot = fs.realpathSync(UPLOADS_DIR);
+        const resolvedPath = fs.realpathSync(filePath);
+        
+        if (!resolvedPath.startsWith(safeRoot)) {
+          console.warn("Security warning: Attempted to clean up file outside of uploads directory:", filePath);
+          return;
+        }
+
+        if (fs.statSync(resolvedPath).isDirectory()) {
+          fs.rmSync(resolvedPath, { recursive: true, force: true });
         } else {
-          fs.unlinkSync(filePath);
+          fs.unlinkSync(resolvedPath);
           // Check if parent directory is a UUID dir and empty, delete it
-          const parentDir = path.dirname(filePath);
-          if (parentDir !== UPLOADS_DIR && parentDir.includes(UPLOADS_DIR)) {
+          const parentDir = path.dirname(resolvedPath);
+          if (parentDir !== safeRoot && parentDir.startsWith(safeRoot)) {
              const remaining = fs.readdirSync(parentDir);
              if (remaining.length === 0 || remaining.every(f => f.endsWith('.txt') || f.endsWith('.json.xz'))) {
                 fs.rmSync(parentDir, { recursive: true, force: true });
