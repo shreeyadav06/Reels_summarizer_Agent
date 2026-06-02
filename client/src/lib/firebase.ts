@@ -24,7 +24,7 @@ const firebaseConfig = {
 localStorage.setItem('reelbrain_firebase_config', JSON.stringify(firebaseConfig));
 
 // Initialize Firebase only if the apiKey is actually provided (prevents crashes before setup)
-const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+const isConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY");
 const app = isConfigured ? initializeApp(firebaseConfig) : null;
 const auth = app ? getAuth(app) : null;
 const db = app ? getFirestore(app) : null;
