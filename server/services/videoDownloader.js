@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
@@ -31,8 +31,7 @@ async function downloadVideo(url) {
       if (shortcodeMatch && shortcodeMatch[1]) {
         const shortcode = shortcodeMatch[1];
         try {
-          const cmd = `instaloader --dirname-pattern "${instaDir}" -- -${shortcode}`;
-          execSync(cmd, { timeout: 120000, stdio: 'pipe' });
+          execFileSync('instaloader', ['--dirname-pattern', instaDir, '--', `-${shortcode}`], { timeout: 120000, stdio: 'pipe' });
           if (fs.existsSync(instaDir)) {
              files = fs.readdirSync(instaDir)
                .filter(f => !f.endsWith('.txt') && !f.endsWith('.json.xz'))
@@ -46,8 +45,12 @@ async function downloadVideo(url) {
 
     // Try yt-dlp if instaloader didn't get files or not instagram
     if (files.length === 0) {
-      const command = `yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" --no-playlist -o "${outputPath}" "${url}"`;
-      execSync(command, {
+      execFileSync('yt-dlp', [
+        '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        '--no-playlist',
+        '-o', outputPath,
+        url
+      ], {
         timeout: 120000, // 2 minute timeout
         stdio: 'pipe',
       });
