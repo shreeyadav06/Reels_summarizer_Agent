@@ -229,15 +229,16 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // TODO: The user will inject their Firebase config here from the guide
-    const firebaseConfig = {
-      apiKey: "AIzaSyAGR5YFSzd0jr9Df7hKSEa9vin1p_7aeno",
-      authDomain: "reelbrain-agent.firebaseapp.com",
-      projectId: "reelbrain-agent",
-      storageBucket: "reelbrain-agent.firebasestorage.app",
-      messagingSenderId: "19619603809",
-      appId: "1:19619603809:web:d6d599669b5502f7f55120",
-      measurementId: "G-HH3TMS48Y6"
+    // Pull Firebase config dynamically from localStorage (set by Vercel landing page)
+    const storedConfig = localStorage.getItem('reelbrain_firebase_config');
+    const firebaseConfig = storedConfig ? JSON.parse(storedConfig) : {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: "",
+      measurementId: ""
     };
     
     let app, auth, db, user = null;
