@@ -140,7 +140,7 @@ Analyze the video now and return ONLY the JSON object:`;
  * @returns {Promise<object>} Structured extraction result
  */
 async function analyzeVideo(videoPaths) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
 
   const paths = Array.isArray(videoPaths) ? videoPaths : [videoPaths];
   const parts = [EXTRACTION_PROMPT];
@@ -242,7 +242,7 @@ async function analyzeVideoLarge(videoPath) {
     throw new Error('Video processing failed on server.');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
   const result = await model.generateContent([
     EXTRACTION_PROMPT,
     {

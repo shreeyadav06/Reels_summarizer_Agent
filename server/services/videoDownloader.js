@@ -3,6 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
+// youtube-dl-exec ships its own yt-dlp binary — no system Python needed
+const youtubedl = require('youtube-dl-exec');
+
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
 // Ensure uploads directory exists
@@ -11,13 +14,13 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 }
 
 /**
- * Download a video from a URL using yt-dlp
+ * Download a video from a URL using youtube-dl-exec (bundled yt-dlp)
  * @param {string} url - The reel/video URL
- * @returns {Promise<string>} Path to the downloaded video file
+ * @returns {Promise<string[]>} Paths to the downloaded video file(s)
  */
 async function downloadVideo(url) {
   const baseFilename = uuidv4();
-  const outputPath = path.join(UPLOADS_DIR, `${baseFilename}.%(ext)s`);
+  const outputTemplate = path.join(UPLOADS_DIR, `${baseFilename}.%(ext)s`);
   const instaDir = path.join(UPLOADS_DIR, baseFilename);
 
   try {
@@ -43,17 +46,14 @@ async function downloadVideo(url) {
       }
     }
 
-    // Try yt-dlp if instaloader didn't get files or not instagram
+    // Try youtube-dl-exec (bundled yt-dlp) if instaloader didn't get files or not instagram
     if (files.length === 0) {
-      execFileSync('yt-dlp', [
-        '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-        '--no-playlist',
-        '-o', outputPath,
-        url
-      ], {
-        timeout: 120000, // 2 minute timeout
-        stdio: 'pipe',
+      await youtubedl(url, {
+        format: 'best[ext=mp4]/best',
+        noPlaylist: true,
+        output: `"${outputTemplate}"`,
       });
+
       files = fs.readdirSync(UPLOADS_DIR)
         .filter((f) => f.startsWith(baseFilename) && !fs.statSync(path.join(UPLOADS_DIR, f)).isDirectory())
         .map(f => path.join(UPLOADS_DIR, f));
@@ -66,16 +66,19 @@ async function downloadVideo(url) {
     throw new Error('Download completed but no media files were found.');
   } catch (error) {
     // Clean up on failure
-    if (fs.existsSync(outputPath)) {
-      fs.unlinkSync(outputPath);
-    }
-
-    if (error.message.includes('yt-dlp')) {
-      throw new Error(
-        'yt-dlp is not installed. Install it with: pip install yt-dlp\n' +
-        'Or upload the video file directly instead.'
-      );
-    }
+    const possibleOutput = path.join(UPLOADS_DIR, `${baseFilename}.*`);
+    try {
+      fs.readdirSync(UPLOADS_DIR)
+        .filter(f => f.startsWith(baseFilename))
+        .forEach(f => {
+          const fullPath = path.join(UPLOADS_DIR, f);
+          if (fs.statSync(fullPath).isDirectory()) {
+            fs.rmSync(fullPath, { recursive: true, force: true });
+          } else {
+            fs.unlinkSync(fullPath);
+          }
+        });
+    } catch (_) { /* ignore cleanup errors */ }
 
     throw new Error(`Failed to download video: ${error.message}`);
   }
