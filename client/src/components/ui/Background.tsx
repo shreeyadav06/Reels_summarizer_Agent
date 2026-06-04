@@ -1,21 +1,31 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 const Background = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const animFrameRef = useRef<number>(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || prefersReducedMotion) return;
 
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+
     // Set size to window dimensions
     renderer.setSize(window.innerWidth, window.innerHeight);
-    const pixelRatio = Math.min(window.devicePixelRatio, 2);
-    renderer.setPixelRatio(pixelRatio); // optimize performance
+    const pixelRatio = Math.min(window.devicePixelRatio * 0.5, 1);
+    renderer.setPixelRatio(pixelRatio);
     container.appendChild(renderer.domElement);
 
     const material = new THREE.ShaderMaterial({
@@ -32,7 +42,7 @@ const Background = () => {
         uniform float iTime;
         uniform vec2 iResolution;
 
-        #define NUM_OCTAVES 3
+        #define NUM_OCTAVES 2
 
         float rand(vec2 n) {
           return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -70,9 +80,9 @@ const Background = () => {
 
           float f = 2.0 + fbm(p + vec2(iTime * 5.0, 0.0)) * 0.5;
 
-          for (float i = 0.0; i < 35.0; i++) {
+          for (float i = 0.0; i < 18.0; i++) {
             v = p + cos(i * i + (iTime + p.x * 0.08) * 0.025 + i * vec2(13.0, 11.0)) * 3.5 + vec2(sin(iTime * 3.0 + i) * 0.003, cos(iTime * 3.5 - i) * 0.003);
-            float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.3 * (1.0 - (i / 35.0));
+            float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.3 * (1.0 - (i / 18.0));
             vec4 auroraColors = vec4(
               0.1 + 0.3 * sin(i * 0.2 + iTime * 0.4),
               0.3 + 0.5 * cos(i * 0.3 + iTime * 0.5),
@@ -80,11 +90,11 @@ const Background = () => {
               1.0
             );
             vec4 currentContribution = auroraColors * exp(sin(i * i + iTime * 0.8)) / length(max(v, vec2(v.x * f * 0.015, v.y * 1.5)));
-            float thinnessFactor = smoothstep(0.0, 1.0, i / 35.0) * 0.6;
+            float thinnessFactor = smoothstep(0.0, 1.0, i / 18.0) * 0.6;
             o += currentContribution * (1.0 + tailNoise * 0.8) * thinnessFactor;
           }
 
-          o = tanh(pow(o / 100.0, vec4(1.6)));
+          o = tanh(pow(o / 50.0, vec4(1.6)));
           gl_FragColor = o * 1.5;
         }
       `
@@ -94,22 +104,63 @@ const Background = () => {
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    let frameId: number;
-    const animate = () => {
-      material.uniforms.iTime.value += 0.016;
+    let lastTime = 0;
+    const FPS_CAP = 30;
+    const FRAME_INTERVAL = 1000 / FPS_CAP;
+
+    const animate = (currentTime: number) => {
+      animFrameRef.current = requestAnimationFrame(animate);
+      const delta = currentTime - lastTime;
+      if (delta < FRAME_INTERVAL) return;
+      lastTime = currentTime - (delta % FRAME_INTERVAL);
+      material.uniforms.iTime.value += delta * 0.001;
       renderer.render(scene, camera);
-      frameId = requestAnimationFrame(animate);
     };
-    animate();
+    animFrameRef.current = requestAnimationFrame(animate);
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (animFrameRef.current) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = 0;
+        }
+      } else {
+        lastTime = 0;
+        animFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!animFrameRef.current) {
+            lastTime = 0;
+            animFrameRef.current = requestAnimationFrame(animate);
+          }
+        } else {
+          if (animFrameRef.current) {
+            cancelAnimationFrame(animFrameRef.current);
+            animFrameRef.current = 0;
+          }
+        }
+      },
+      { threshold: 0 }
+    );
+    observer.observe(renderer.domElement);
 
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
-      material.uniforms.iResolution.value.set(window.innerWidth * pixelRatio, window.innerHeight * pixelRatio);
+      const w = window.innerWidth * pixelRatio;
+      const h = window.innerHeight * pixelRatio;
+      material.uniforms.iResolution.value.set(w, h);
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
-      cancelAnimationFrame(frameId);
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('resize', handleResize);
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
@@ -118,11 +169,22 @@ const Background = () => {
       material.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [prefersReducedMotion]);
+
+  if (prefersReducedMotion) {
+    return (
+      <div
+        className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+        style={{
+          background: 'linear-gradient(135deg, #0a0a0a 0%, #0d1117 40%, #0a1628 70%, #0a0a0a 100%)',
+        }}
+      />
+    );
+  }
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
       style={{ background: '#0a0a0a' }}
     />

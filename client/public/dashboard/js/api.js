@@ -2,7 +2,9 @@
  * API Client — fetch wrapper for ReelBrain backend
  */
 const API = {
-  baseUrl: 'https://reel-summarizer-backend.onrender.com/api/reels',
+  baseUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3005/api/reels'
+    : 'https://reel-summarizer-backend.onrender.com/api/reels',
   async analyzeUpload(file) {
     const formData = new FormData();
     formData.append('video', file);
