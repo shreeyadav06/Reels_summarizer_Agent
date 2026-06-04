@@ -5,7 +5,7 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
 ## Features
 
 - **Upload** video files or **paste URLs** of Instagram Reels
-- **Gemini 2.0 Flash** multimodal AI analyzes video + audio in one pass
+- **Gemini  3.1 Flash lite** multimodal AI analyzes video + audio in one pass
 - **Auto-categorization** into 9 categories: Internships, Skills, Recipes, Coupons, Places, News, Finance, Tools, General
 - **Structured extraction** of category-specific fields (ingredients, coupon codes, deadlines, etc.)
 - **Beautiful dashboard** with glassmorphism cards and category filtering
@@ -24,7 +24,6 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
    ```bash
    npm install
    ```
-
 4. **Run the app:**
    ```bash
    npm run dev

@@ -30,7 +30,7 @@ You MUST return a valid JSON object (no markdown, no code fences, just raw JSON)
   },
   "tags": ["relevant", "tags", "for", "searching"],
   "actionItems": ["Concrete action steps the viewer should take"],
-  "rawTranscript": "Brief transcript or description of what was said/shown"
+  "rawTranscript": "For audio recordings/meetings, this MUST be a COMPLETE, word-for-word verbatim transcript of the ENTIRE audio. For shorter reels, a brief transcript is fine."
 }
 
 CATEGORY-SPECIFIC DETAILS FIELDS:
@@ -131,6 +131,7 @@ RULES:
 - Be specific with coupon codes, links, dates, and numbers — exact values matter.
 - The tags should be useful for searching later.
 - Action items should be concrete next steps the viewer can take.
+- **CRITICAL FOR AUDIO/MEETINGS:** If analyzing an audio recording, meeting, or feedback session, you MUST provide a complete, word-for-word verbatim transcription in the rawTranscript field. Do NOT skip any words, corrections, or details. This is non-negotiable. Please format it with clear paragraph breaks for readability.
 
 Analyze the video now and return ONLY the JSON object:`;
 
@@ -162,6 +163,10 @@ async function analyzeVideo(videoPaths) {
       '.jpeg': 'image/jpeg',
       '.png': 'image/png',
       '.webp': 'image/webp',
+      '.mp3': 'audio/mp3',
+      '.m4a': 'audio/m4a',
+      '.aac': 'audio/aac',
+      '.wav': 'audio/wav',
     };
     const mimeType = mimeMap[ext] || 'video/mp4';
 
@@ -223,6 +228,10 @@ async function analyzeVideoLarge(videoPath) {
     '.jpeg': 'image/jpeg',
     '.png': 'image/png',
     '.webp': 'image/webp',
+    '.mp3': 'audio/mp3',
+    '.m4a': 'audio/m4a',
+    '.aac': 'audio/aac',
+    '.wav': 'audio/wav',
   };
   const mimeType = mimeMap[ext] || 'video/mp4';
 

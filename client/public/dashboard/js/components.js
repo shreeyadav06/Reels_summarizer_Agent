@@ -93,7 +93,7 @@ const Components = {
     // Transcript
     let transcriptHtml = '';
     if (summary.rawTranscript) {
-      transcriptHtml = `<div class="modal__section"><div class="modal__section-title">📝 Transcript</div><p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">${this.escapeHtml(summary.rawTranscript)}</p></div>`;
+      transcriptHtml = `<div class="modal__section"><div class="modal__section-title">📝 Transcript</div><p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">${this.escapeHtml(summary.rawTranscript)}</p></div>`;
     }
 
     return `

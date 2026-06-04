@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const { analyzeVideo } = require('../services/gemini');
+const { analyzeVideo, analyzeVideoLarge } = require('../services/gemini');
 const { downloadVideo, cleanupFile } = require('../services/videoDownloader');
 const { getAllSummaries, saveSummary, deleteSummary } = require('../services/storage');
 
@@ -31,11 +31,12 @@ const upload = multer({
       'video/mp4', 'video/quicktime', 'video/x-msvideo',
       'video/webm', 'video/x-matroska', 'video/3gpp',
       'image/jpeg', 'image/png', 'image/webp',
+      'audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/wav', 'audio/x-wav'
     ];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error(`Unsupported video/image format: ${file.mimetype}. Use MP4, MOV, WebM, JPEG, PNG, or WebP.`));
+      cb(new Error(`Unsupported media format: ${file.mimetype}. Use MP4, MOV, WebM, JPEG, PNG, MP3, M4A, or WAV.`));
     }
   },
 });
@@ -56,7 +57,14 @@ router.post('/analyze-upload', upload.single('video'), async (req, res) => {
     console.log(`📹 Analyzing uploaded video: ${req.file.originalname} (${(req.file.size / 1024 / 1024).toFixed(1)}MB)`);
 
     // Analyze with Gemini
-    const analysis = await analyzeVideo(filePath);
+    let analysis;
+    if (req.file.size > 19 * 1024 * 1024) {
+      console.log(`🚀 File is > 19MB, using Gemini File API...`);
+      analysis = await analyzeVideoLarge(filePath);
+    } else {
+      analysis = await analyzeVideo(filePath);
+    }
+    
     analysis.id = require('uuid').v4(); // Generate a temporary ID
     analysis.createdAt = new Date().toISOString();
 

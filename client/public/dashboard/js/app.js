@@ -78,9 +78,13 @@ const App = {
 
   // ─── File Handling ───
   selectFile(file) {
-    const validTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/x-matroska', 'image/jpeg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|avi|mkv|jpg|jpeg|png|webp)$/i)) {
-      return this.showError('Please upload a valid video or image file (MP4, MOV, WebM, AVI, JPG, PNG, WebP)');
+    const validTypes = [
+      'video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo', 'video/x-matroska',
+      'image/jpeg', 'image/png', 'image/webp',
+      'audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/wav', 'audio/x-wav'
+    ];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|avi|mkv|jpg|jpeg|png|webp|mp3|m4a|aac|wav)$/i)) {
+      return this.showError('Please upload a valid media file (MP4, MOV, MP3, M4A, JPG, PNG, etc.)');
     }
     if (file.size > 100 * 1024 * 1024) {
       return this.showError('File too large. Maximum size is 100MB.');
