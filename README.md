@@ -33,12 +33,25 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
 
 ## Optional: URL Download Support
 
-To analyze reels from URLs, install [yt-dlp](https://github.com/yt-dlp/yt-dlp):
-```bash
-pip install yt-dlp
-```
+To analyze reels from URLs, the backend supports multiple fallback methods:
 
-Without yt-dlp, you can still upload video files directly.
+### 1. RapidAPI (Recommended for Vercel/Render)
+Instagram aggressively blocks unauthenticated scraping from cloud IPs (like Vercel and Render). Using a free API is the most reliable method.
+1. Get a free API key from a RapidAPI provider (e.g. `instagram-scraper-api2`).
+2. Add your key to the backend `.env` variables:
+   ```env
+   RAPIDAPI_KEY=your_rapidapi_key
+   RAPIDAPI_HOST=instagram-scraper-api2.p.rapidapi.com
+   ```
+
+### 2. Local Fallback (yt-dlp)
+If you run this locally on your own PC, `yt-dlp` works decently well. 
+```bash
+npm install youtube-dl-exec
+```
+*(The backend bundles `youtube-dl-exec` which manages its own yt-dlp binary).*
+
+Without any downloader configured, you can still upload video files directly from the dashboard.
 
 ## Tech Stack
 
