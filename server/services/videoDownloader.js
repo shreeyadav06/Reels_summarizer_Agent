@@ -13,14 +13,7 @@ if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
-async function downloadFile(url, outputPath) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to fetch file from RapidAPI URL: ${response.statusText}`);
-  const arrayBuffer = await response.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  fs.writeFileSync(outputPath, buffer);
-  return outputPath;
-}
+
 
 /**
  * Download a video from a URL using RapidAPI, falling back to bundled yt-dlp
@@ -39,61 +32,7 @@ async function downloadVideo(url) {
     // Check if it's an Instagram URL
     const isInstagram = url.includes('instagram.com/p/') || url.includes('instagram.com/reel/');
     
-    // 1. Try RapidAPI if configured (Best for Vercel/Render without getting blocked)
-    if (isInstagram && process.env.RAPIDAPI_KEY) {
-      const rapidApiHost = process.env.RAPIDAPI_HOST || 'instagram-scraper-api2.p.rapidapi.com';
-      try {
-        console.log(`Using RapidAPI (${rapidApiHost}) for Instagram download...`);
-        // Support common endpoint formats or an exact endpoint from env
-        let apiUrl = '';
-        if (process.env.RAPIDAPI_ENDPOINT_URL) {
-          // If the user provided the exact URL (e.g., https://.../endpoint), append the url query
-          const baseUrl = process.env.RAPIDAPI_ENDPOINT_URL;
-          apiUrl = baseUrl.includes('?') ? `${baseUrl}&url=${encodeURIComponent(url)}` : `${baseUrl}?url=${encodeURIComponent(url)}`;
-        } else if (rapidApiHost === 'instagram-scraper-api2.p.rapidapi.com') {
-          apiUrl = `https://${rapidApiHost}/v1.2/post/info?code_or_id_or_url=${encodeURIComponent(url)}`;
-        } else {
-           // Fallback common format
-          apiUrl = `https://${rapidApiHost}/index?url=${encodeURIComponent(url)}`;
-        }
-        
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-          headers: {
-            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-            'X-RapidAPI-Host': rapidApiHost
-          }
-        });
-        
-        if (!response.ok) throw new Error(`RapidAPI Error: ${response.status}`);
-        const data = await response.json();
-        
-        // Extract video URL based on common RapidAPI response shapes
-        let videoUrl = null;
-        if (data?.data?.video_versions?.length > 0) {
-           videoUrl = data.data.video_versions[0].url; // instagram-scraper-api2 format
-        } else if (Array.isArray(data?.media) && data.media.length > 0) {
-           videoUrl = data.media[0].url; // Kk Creation format
-        } else if (typeof data?.media === 'string') {
-           videoUrl = data.media; // generic string format
-        } else if (data?.result?.[0]?.url) {
-           videoUrl = data.result[0].url;
-        }
-        
-        if (videoUrl) {
-           await downloadFile(videoUrl, mp4Output);
-           if (fs.existsSync(mp4Output)) {
-              files.push(mp4Output);
-           }
-        } else {
-           console.warn("Could not extract video URL from RapidAPI response:", data);
-        }
-      } catch (e) {
-        console.error("RapidAPI download failed:", e.message);
-      }
-    }
-
-    // 2. Fallback to local Instaloader (likely blocked in CI/CD without cookies)
+    // 1. Try local Instaloader (likely blocked in CI/CD without cookies)
     if (isInstagram && files.length === 0) {
       // Extract shortcode
       const shortcodeMatch = url.match(/(?:p|reel)\/([^\/?#&]+)/);
@@ -112,7 +51,7 @@ async function downloadVideo(url) {
       }
     }
 
-    // 3. Try youtube-dl-exec (bundled yt-dlp) if instaloader didn't get files or not instagram
+    // 2. Try youtube-dl-exec (bundled yt-dlp) if instaloader didn't get files or not instagram
     if (files.length === 0) {
       await youtubedl(url, {
         format: 'best[ext=mp4]/best',

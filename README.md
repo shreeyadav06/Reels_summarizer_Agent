@@ -31,21 +31,10 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
 
 5. Open `http://localhost:3000` in your browser
 
-## Optional: URL Download Support
+## URL Download Support
 
-To analyze reels from URLs, the backend supports multiple fallback methods:
+To analyze reels from URLs, the backend uses `instaloader` and `youtube-dl-exec` (yt-dlp) locally to download videos.
 
-### 1. RapidAPI (Recommended for Vercel/Render)
-Instagram aggressively blocks unauthenticated scraping from cloud IPs (like Vercel and Render). Using a free API is the most reliable method.
-1. Get a free API key from a RapidAPI provider (e.g. `instagram-scraper-api2`).
-2. Add your key to the backend `.env` variables:
-   ```env
-   RAPIDAPI_KEY=your_rapidapi_key
-   RAPIDAPI_HOST=instagram-scraper-api2.p.rapidapi.com
-   ```
-
-### 2. Local Fallback (yt-dlp)
-If you run this locally on your own PC, `yt-dlp` works decently well. 
 ```bash
 npm install youtube-dl-exec
 ```
