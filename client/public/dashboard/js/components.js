@@ -31,9 +31,11 @@ const Components = {
   renderCard(summary) {
     const cat = this.getCatMeta(summary.category);
     const tags = (summary.tags || []).slice(0, 4);
-    const source = summary.sourceUrl
-      ? new URL(summary.sourceUrl).hostname
-      : summary.sourceFilename || 'Uploaded';
+    
+    // Create clickable link if URL exists
+    const sourceHtml = summary.sourceUrl
+      ? `<a href="${this.escapeHtml(summary.sourceUrl)}" target="_blank" onclick="event.stopPropagation()" class="summary-card__source summary-card__source--link" title="Open original link">🔗 ${this.escapeHtml(new URL(summary.sourceUrl).hostname)}</a>`
+      : `<span class="summary-card__source">${this.escapeHtml(summary.sourceFilename || 'Uploaded')}</span>`;
 
     return `
       <article class="summary-card" data-category="${summary.category}" data-id="${summary.id}" onclick="App.openModal('${summary.id}')">
@@ -52,7 +54,7 @@ const Components = {
         <p class="summary-card__summary">${this.escapeHtml(summary.summary || '')}</p>
         ${tags.length ? `<div class="summary-card__tags">${tags.map(t => `<span class="summary-card__tag">#${this.escapeHtml(t)}</span>`).join('')}</div>` : ''}
         <div class="summary-card__meta">
-          <span class="summary-card__source">${this.escapeHtml(source)}</span>
+          ${sourceHtml}
           <span>${this.formatDate(summary.createdAt)}</span>
         </div>
       </article>

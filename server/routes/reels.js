@@ -67,6 +67,7 @@ router.post('/analyze-upload', upload.single('video'), async (req, res) => {
     
     analysis.id = require('uuid').v4(); // Generate a temporary ID
     analysis.createdAt = new Date().toISOString();
+    analysis.sourceFilename = req.file.originalname;
 
     console.log(`✅ Analysis complete: "${analysis.title}" [${analysis.category}]`);
     res.json({ success: true, summary: analysis });
@@ -104,6 +105,7 @@ router.post('/analyze-url', async (req, res) => {
     const analysis = await analyzeVideo(filePath);
     analysis.id = require('uuid').v4(); // Generate a temporary ID
     analysis.createdAt = new Date().toISOString();
+    analysis.sourceUrl = url;
 
     console.log(`✅ Analysis complete: "${analysis.title}" [${analysis.category}]`);
     res.json({ success: true, summary: analysis });

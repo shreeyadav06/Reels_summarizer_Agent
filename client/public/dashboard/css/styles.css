@@ -349,3 +349,17 @@ body {
   .filter-pills { gap: 6px; }
   .filter-pill { padding: 5px 10px; font-size: 0.75rem; }
 }
+
+/* Clickable Link Styling */
+.summary-card__source--link {
+  color: var(--primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-card__source--link:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
