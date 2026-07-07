@@ -68,8 +68,10 @@ const Components = {
 
     // Build detail grid
     const entries = Object.entries(details).filter(([, v]) => v != null && v !== '');
+    
+    let items = '';
     if (entries.length > 0) {
-      const items = entries.map(([key, value]) => {
+      items = entries.map(([key, value]) => {
         const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
         const isLong = Array.isArray(value) || (typeof value === 'string' && value.length > 60);
         const displayVal = Array.isArray(value)
@@ -77,6 +79,13 @@ const Components = {
           : this.escapeHtml(String(value));
         return `<div class="modal__detail-item${isLong ? ' modal__detail-item--full' : ''}"><div class="modal__detail-label">${this.escapeHtml(label)}</div><div class="modal__detail-value">${displayVal}</div></div>`;
       }).join('');
+    }
+
+    if (summary.sourceUrl) {
+      items += `<div class="modal__detail-item modal__detail-item--full"><div class="modal__detail-label">Original Link</div><div class="modal__detail-value"><a href="${this.escapeHtml(summary.sourceUrl)}" target="_blank" style="color:var(--primary);text-decoration:none;word-break:break-all;">${this.escapeHtml(summary.sourceUrl)}</a></div></div>`;
+    }
+
+    if (items) {
       detailsHtml = `<div class="modal__section"><div class="modal__section-title">📄 Details</div><div class="modal__detail-grid">${items}</div></div>`;
     }
 
