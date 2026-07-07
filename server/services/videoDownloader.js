@@ -16,14 +16,13 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 
 
 /**
- * Download a video from a URL using RapidAPI, falling back to bundled yt-dlp
+ * Download a video from a URL using Apify, falling back to bundled yt-dlp
  * @param {string} url - The reel/video URL
  * @returns {Promise<string[]>} Paths to the downloaded video file(s)
  */
 async function downloadVideo(url) {
   const baseFilename = uuidv4();
   const outputTemplate = path.join(UPLOADS_DIR, `${baseFilename}.%(ext)s`);
-  const instaDir = path.join(UPLOADS_DIR, baseFilename);
   const mp4Output = path.join(UPLOADS_DIR, `${baseFilename}.mp4`);
 
   try {
@@ -32,26 +31,57 @@ async function downloadVideo(url) {
     // Check if it's an Instagram URL
     const isInstagram = url.includes('instagram.com/p/') || url.includes('instagram.com/reel/');
     
-    // 1. Try local Instaloader (likely blocked in CI/CD without cookies)
-    if (isInstagram && files.length === 0) {
-      // Extract shortcode
-      const shortcodeMatch = url.match(/(?:p|reel)\/([^\/?#&]+)/);
-      if (shortcodeMatch && shortcodeMatch[1]) {
-        const shortcode = shortcodeMatch[1];
-        try {
-          execFileSync('instaloader', ['--dirname-pattern', instaDir, '--', `-${shortcode}`], { timeout: 120000, stdio: 'pipe' });
-          if (fs.existsSync(instaDir)) {
-             files = fs.readdirSync(instaDir)
-               .filter(f => !f.endsWith('.txt') && !f.endsWith('.json.xz'))
-               .map(f => path.join(instaDir, f));
+    // 1. Try Apify Scraper for Instagram
+    if (isInstagram && process.env.APIFY_API_TOKEN) {
+      try {
+        console.log("Using Apify to bypass Instagram blocking...");
+        const { ApifyClient } = require('apify-client');
+        const client = new ApifyClient({ token: process.env.APIFY_API_TOKEN });
+        
+        const input = {
+          directUrls: [url],
+          resultsType: "details",
+          resultsLimit: 1,
+          addParentData: false,
+        };
+        
+        const run = await client.actor("apify/instagram-scraper").call(input);
+        const { items } = await client.dataset(run.defaultDatasetId).listItems();
+        
+        if (items.length > 0 && items[0].videoUrl) {
+          const videoUrl = items[0].videoUrl;
+          console.log("Apify extracted video URL. Downloading...");
+          
+          await new Promise((resolve, reject) => {
+            const https = require('https');
+            const file = fs.createWriteStream(mp4Output);
+            https.get(videoUrl, response => {
+              if (response.statusCode !== 200) {
+                return reject(new Error(`Failed to download from CDN: ${response.statusCode}`));
+              }
+              response.pipe(file);
+              file.on('finish', () => {
+                file.close();
+                resolve();
+              });
+            }).on('error', err => {
+              fs.unlink(mp4Output, () => {});
+              reject(err);
+            });
+          });
+          
+          if (fs.existsSync(mp4Output)) {
+            files.push(mp4Output);
           }
-        } catch(e) {
-          console.warn("Instaloader failed, falling back to yt-dlp", e.message);
+        } else {
+           console.warn("Apify finished but did not find a videoUrl. Falling back to yt-dlp.");
         }
+      } catch (e) {
+        console.warn("Apify failed, falling back to yt-dlp", e.message);
       }
     }
 
-    // 2. Try youtube-dl-exec (bundled yt-dlp) if instaloader didn't get files or not instagram
+    // 2. Try youtube-dl-exec (bundled yt-dlp) if Apify didn't get files or not instagram
     if (files.length === 0) {
       await youtubedl(url, {
         format: 'best[ext=mp4]/best',

@@ -18,6 +18,7 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
 2. **Add your key** to `.env`:
    ```
    GEMINI_API_KEY=your_key_here
+   APIFY_API_TOKEN=your_apify_token_here
    ```
 
 3. **Install dependencies:**
@@ -29,16 +30,16 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
    npm run dev
    ```
 
-5. Open `http://localhost:3000` in your browser
+5. Open `http://localhost:3005` in your browser
 
 ## URL Download Support
 
-To analyze reels from URLs, the backend uses `instaloader` and `youtube-dl-exec` (yt-dlp) locally to download videos.
+To analyze reels from URLs, the backend uses **Apify** (to securely bypass Instagram's datacenter IP blocks) and `youtube-dl-exec` (yt-dlp) as a fallback for other platforms like YouTube Shorts.
 
 ```bash
-npm install youtube-dl-exec
+npm install apify-client youtube-dl-exec
 ```
-*(The backend bundles `youtube-dl-exec` which manages its own yt-dlp binary).*
+*(The backend bundles `youtube-dl-exec` which manages its own yt-dlp binary. Apify requires a free API token).*
 
 Without any downloader configured, you can still upload video files directly from the dashboard.
 
@@ -48,7 +49,7 @@ Without any downloader configured, you can still upload video files directly fro
 |-------|------|
 | Frontend | React, Vite, Tailwind CSS, Framer Motion |
 | Backend | Node.js + Express |
-| AI | Google Gemini 2.0 Flash |
+| AI | Google Gemini 3.1 Flash lite |
 | Storage | JSON file |
 
 ## Deployment
@@ -72,8 +73,8 @@ Vercel's free tier serverless functions are not suitable for the backend because
 
 We recommend deploying the backend using a Docker container on platforms like Render:
 
-1. Use the provided Docker configuration to build the environment with Node.js, Python, `yt-dlp`, and `instaloader`.
+1. Use the provided Docker configuration to build the environment with Node.js, Python, and `yt-dlp`.
 2. Connect your repository to Render as a "Web Service".
 3. Set the root directory to `server/`.
 4. Render will automatically build the environment using the Dockerfile.
-5. Add your `GEMINI_API_KEY` to the environment variables on Render.
+5. Add your `GEMINI_API_KEY` and `APIFY_API_TOKEN` to the environment variables on Render.
