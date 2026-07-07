@@ -86,6 +86,7 @@ async function downloadVideo(url) {
       await youtubedl(url, {
         format: 'best[ext=mp4]/best',
         noPlaylist: true,
+        jsRuntimes: 'node',
         output: `"${outputTemplate}"`,
       });
 

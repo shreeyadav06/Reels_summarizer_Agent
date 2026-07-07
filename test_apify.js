@@ -22,10 +22,12 @@ async function testApify(url) {
     console.log("Items:", items.length);
     if (items.length > 0) {
       console.log("Video URL:", items[0].videoUrl);
+      console.log("Is Video:", items[0].isVideo);
+      console.log("Type:", items[0].type);
     }
   } catch(err) {
     console.error("Error:", err);
   }
 }
 
-testApify('https://www.instagram.com/reel/DaceVEpTgn0/');
+testApify('https://www.instagram.com/p/DZ99nwknV5m/');
