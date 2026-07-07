@@ -16,7 +16,7 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 
 
 /**
- * Download a video from a URL using Apify, falling back to bundled yt-dlp
+ * Download a video from a URL using Apify, RapidAPI, falling back to bundled yt-dlp
  * @param {string} url - The reel/video URL
  * @returns {Promise<string[]>} Paths to the downloaded video file(s)
  */
@@ -27,12 +27,88 @@ async function downloadVideo(url) {
 
   try {
     let files = [];
+    const https = require('https');
     
-    // Check if it's an Instagram URL
+    // Helper to download files
+    const downloadFile = (fileUrl, outputPath) => {
+      return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(outputPath);
+        https.get(fileUrl, response => {
+          if (response.statusCode !== 200) {
+            return reject(new Error(`Failed to download from CDN: ${response.statusCode}`));
+          }
+          response.pipe(file);
+          file.on('finish', () => {
+            file.close();
+            resolve(outputPath);
+          });
+        }).on('error', err => {
+          fs.unlink(outputPath, () => {});
+          reject(err);
+        });
+      });
+    };
+    
+    // Check URL type
     const isInstagram = url.includes('instagram.com/p/') || url.includes('instagram.com/reel/');
-    
-    // 1. Try Apify Scraper for Instagram
-    if (isInstagram && process.env.APIFY_API_TOKEN) {
+    const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+
+    // 1. Try RapidAPI for YouTube
+    if (isYoutube && process.env.RAPIDAPI_KEY) {
+      try {
+        console.log("Using RapidAPI to bypass YouTube blocking...");
+        const encodedUrl = encodeURIComponent(url);
+        const rapidUrl = `https://youtube-info-download-api.p.rapidapi.com/ajax/download.php?format=mp3&add_info=0&url=${encodedUrl}`;
+        const fetchObj = global.fetch ? global.fetch : require('node-fetch');
+        
+        const res = await fetchObj(rapidUrl, {
+          method: 'GET',
+          headers: {
+            'x-rapidapi-host': 'youtube-info-download-api.p.rapidapi.com',
+            'x-rapidapi-key': process.env.RAPIDAPI_KEY
+          }
+        });
+        const data = await res.json();
+        
+        if (data && data.success) {
+           const progressUrl = data.progress_url;
+           if (progressUrl) {
+             console.log("Polling RapidAPI progress...");
+             let downloadUrl = null;
+             // Poll for up to 30 seconds
+             for (let i = 0; i < 30; i++) {
+               const pRes = await fetchObj(progressUrl);
+               const pData = await pRes.json();
+               if (pData && pData.success === 1 && pData.download_url) {
+                 downloadUrl = pData.download_url;
+                 break;
+               }
+               await new Promise(r => setTimeout(r, 1000));
+             }
+             if (downloadUrl) {
+                console.log("RapidAPI extracted URL. Downloading mp3 audio...");
+                const mp3Output = path.join(UPLOADS_DIR, `${baseFilename}.mp3`);
+                await downloadFile(downloadUrl, mp3Output);
+                if (fs.existsSync(mp3Output)) files.push(mp3Output);
+             } else {
+                throw new Error("RapidAPI polling timed out.");
+             }
+           } else if (data.url) {
+              console.log("RapidAPI extracted URL immediately. Downloading mp3...");
+              const mp3Output = path.join(UPLOADS_DIR, `${baseFilename}.mp3`);
+              await downloadFile(data.url, mp3Output);
+              if (fs.existsSync(mp3Output)) files.push(mp3Output);
+           }
+        } else {
+          console.warn("RapidAPI response unsuccessful:", data);
+        }
+      } catch (e) {
+        console.warn("RapidAPI YouTube download failed:", e.message);
+      }
+    }
+
+    // 2. Try Apify Scraper for Instagram
+    if (files.length === 0 && isInstagram && process.env.APIFY_API_TOKEN) {
       try {
         console.log("Using Apify to bypass Instagram blocking...");
         const { ApifyClient } = require('apify-client');
@@ -48,41 +124,36 @@ async function downloadVideo(url) {
         const run = await client.actor("apify/instagram-scraper").call(input);
         const { items } = await client.dataset(run.defaultDatasetId).listItems();
         
-        if (items.length > 0 && items[0].videoUrl) {
-          const videoUrl = items[0].videoUrl;
-          console.log("Apify extracted video URL. Downloading...");
+        if (items.length > 0) {
+          const item = items[0];
           
-          await new Promise((resolve, reject) => {
-            const https = require('https');
-            const file = fs.createWriteStream(mp4Output);
-            https.get(videoUrl, response => {
-              if (response.statusCode !== 200) {
-                return reject(new Error(`Failed to download from CDN: ${response.statusCode}`));
+          if (item.images && item.images.length > 0) {
+            console.log(`Apify extracted ${item.images.length} images for carousel. Downloading...`);
+            for (let i = 0; i < item.images.length; i++) {
+              const imgOutput = path.join(UPLOADS_DIR, `${baseFilename}-${i}.jpg`);
+              try {
+                await downloadFile(item.images[i], imgOutput);
+                if (fs.existsSync(imgOutput)) files.push(imgOutput);
+              } catch (err) {
+                console.warn(`Failed to download carousel image ${i}:`, err.message);
               }
-              response.pipe(file);
-              file.on('finish', () => {
-                file.close();
-                resolve();
-              });
-            }).on('error', err => {
-              fs.unlink(mp4Output, () => {});
-              reject(err);
-            });
-          });
-          
-          if (fs.existsSync(mp4Output)) {
-            files.push(mp4Output);
+            }
+          } else if (item.videoUrl) {
+            console.log("Apify extracted video URL. Downloading...");
+            await downloadFile(item.videoUrl, mp4Output);
+            if (fs.existsSync(mp4Output)) files.push(mp4Output);
+          } else {
+             console.warn("Apify finished but did not find video or images. Falling back to yt-dlp.");
           }
-        } else {
-           console.warn("Apify finished but did not find a videoUrl. Falling back to yt-dlp.");
         }
       } catch (e) {
         console.warn("Apify failed, falling back to yt-dlp", e.message);
       }
     }
 
-    // 2. Try youtube-dl-exec (bundled yt-dlp) if Apify didn't get files or not instagram
+    // 3. Try youtube-dl-exec (bundled yt-dlp) if APIs didn't get files
     if (files.length === 0) {
+      console.log("Falling back to yt-dlp...");
       await youtubedl(url, {
         format: 'best[ext=mp4]/best',
         noPlaylist: true,
