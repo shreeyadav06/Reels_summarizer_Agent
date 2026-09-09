@@ -15,7 +15,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "instagram-url-direct": "^2.0.7",
-    "multer": "^2.2.0",
+    "multer": "^2.3.0",
     "uuid": "^11.1.0",
     "youtube-dl-exec": "^3.1.7"
   },
