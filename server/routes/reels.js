@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const { analyzeVideo, analyzeVideoLarge } = require('../services/gemini');
 const { downloadVideo, cleanupFile } = require('../services/videoDownloader');
 const { getAllSummaries, saveSummary, deleteSummary } = require('../services/storage');
+const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -43,9 +44,9 @@ const upload = multer({
 
 /**
  * POST /api/reels/analyze-upload
- * Analyze an uploaded video file
+ * Analyze an uploaded video file (Protected by Firebase Auth)
  */
-router.post('/analyze-upload', upload.single('video'), async (req, res) => {
+router.post('/analyze-upload', authMiddleware(), upload.single('video'), async (req, res) => {
   let filePath = null;
 
   try {
@@ -83,9 +84,9 @@ router.post('/analyze-upload', upload.single('video'), async (req, res) => {
 
 /**
  * POST /api/reels/analyze-url
- * Analyze a video from URL (Instagram Reel, etc.)
+ * Analyze a video from URL (Protected by Firebase Auth)
  */
-router.post('/analyze-url', async (req, res) => {
+router.post('/analyze-url', authMiddleware(), async (req, res) => {
   let filePath = null;
 
   try {
