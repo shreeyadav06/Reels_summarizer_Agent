@@ -28,24 +28,45 @@ const Components = {
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
   },
 
+  safeUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return this.escapeHtml(url);
+      }
+    } catch (_) {}
+    return '';
+  },
+
+  escapeJsString(str) {
+    if (!str) return '';
+    return String(str).replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+  },
+
   renderCard(summary) {
     const cat = this.getCatMeta(summary.category);
     const tags = (summary.tags || []).slice(0, 4);
+    const safeId = this.escapeJsString(summary.id);
     
-    // Create clickable link if URL exists
-    const sourceHtml = summary.sourceUrl
-      ? `<a href="${this.escapeHtml(summary.sourceUrl)}" target="_blank" onclick="event.stopPropagation()" class="summary-card__source summary-card__source--link" title="Open original link">🔗 ${this.escapeHtml(new URL(summary.sourceUrl).hostname)}</a>`
+    // Create clickable link if URL exists and is safe HTTP/HTTPS
+    const safeLink = this.safeUrl(summary.sourceUrl);
+    let hostname = 'Link';
+    try { if (safeLink) hostname = new URL(summary.sourceUrl).hostname; } catch (_) {}
+
+    const sourceHtml = safeLink
+      ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="summary-card__source summary-card__source--link" title="Open original link">🔗 ${this.escapeHtml(hostname)}</a>`
       : `<span class="summary-card__source">${this.escapeHtml(summary.sourceFilename || 'Uploaded')}</span>`;
 
     return `
-      <article class="summary-card" data-category="${summary.category}" data-id="${summary.id}" onclick="App.openModal('${summary.id}')">
+      <article class="summary-card" data-category="${this.escapeHtml(summary.category)}" data-id="${this.escapeHtml(summary.id)}" onclick="App.openModal('${safeId}')">
         <div class="summary-card__header">
           <span class="summary-card__category ${cat.class}">${cat.icon} ${cat.label}</span>
           <div style="display:flex; gap:6px;">
-            <button class="summary-card__copy" onclick="event.stopPropagation(); App.copyToClipboard('${summary.id}')" title="Copy Text">
+            <button class="summary-card__copy" onclick="event.stopPropagation(); App.copyToClipboard('${safeId}')" title="Copy Text">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
-            <button class="summary-card__delete" onclick="event.stopPropagation(); App.deleteSummary('${summary.id}')" title="Delete">
+            <button class="summary-card__delete" onclick="event.stopPropagation(); App.deleteSummary('${safeId}')" title="Delete">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           </div>
@@ -82,7 +103,10 @@ const Components = {
     }
 
     if (summary.sourceUrl) {
-      items += `<div class="modal__detail-item modal__detail-item--full"><div class="modal__detail-label">Original Link</div><div class="modal__detail-value"><a href="${this.escapeHtml(summary.sourceUrl)}" target="_blank" style="color:var(--primary);text-decoration:none;word-break:break-all;">${this.escapeHtml(summary.sourceUrl)}</a></div></div>`;
+      const safeLink = this.safeUrl(summary.sourceUrl);
+      if (safeLink) {
+        items += `<div class="modal__detail-item modal__detail-item--full"><div class="modal__detail-label">Original Link</div><div class="modal__detail-value"><a href="${safeLink}" target="_blank" rel="noopener noreferrer" style="color:var(--primary);text-decoration:none;word-break:break-all;">${safeLink}</a></div></div>`;
+      }
     }
 
     if (items) {
@@ -107,10 +131,12 @@ const Components = {
       transcriptHtml = `<div class="modal__section"><div class="modal__section-title">📝 Transcript</div><p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;white-space:pre-wrap;">${this.escapeHtml(summary.rawTranscript)}</p></div>`;
     }
 
+    const safeId = this.escapeJsString(summary.id);
+
     return `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span class="modal__category-badge ${cat.class}" style="margin-bottom:0;">${cat.icon} ${cat.label}</span>
-        <button class="modal__copy-btn" onclick="App.copyToClipboard('${summary.id}')">
+        <button class="modal__copy-btn" onclick="App.copyToClipboard('${safeId}')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy Info
         </button>

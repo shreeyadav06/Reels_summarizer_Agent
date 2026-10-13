@@ -16,25 +16,79 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 
 
 /**
+ * Sanitize and validate video URL to prevent SSRF and argument injection
+ * @param {string} rawUrl - Untrusted input URL
+ * @returns {string} Normalized safe URL
+ */
+function sanitizeVideoUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    throw new Error('Please provide a valid URL string.');
+  }
+
+  const trimmed = rawUrl.trim();
+  // Reject CLI argument injection patterns or whitespace
+  if (trimmed.startsWith('-') || /\s/.test(trimmed)) {
+    throw new Error('Invalid URL format: cannot start with flags or contain whitespace.');
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new Error('Invalid URL: unable to parse.');
+  }
+
+  // Restrict to HTTP/HTTPS protocols
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error('Unsupported protocol: only HTTP and HTTPS URLs are allowed.');
+  }
+
+  // Allowlist Instagram and YouTube domains only
+  const allowedHosts = [
+    'instagram.com',
+    'www.instagram.com',
+    'instagr.am',
+    'youtube.com',
+    'www.youtube.com',
+    'youtu.be',
+    'm.youtube.com'
+  ];
+
+  const host = parsed.hostname.toLowerCase();
+  const isAllowed = allowedHosts.some(allowed => host === allowed || host.endsWith('.' + allowed));
+  if (!isAllowed) {
+    throw new Error('Restricted host: only Instagram Reels and YouTube URLs are supported.');
+  }
+
+  return parsed.toString();
+}
+
+/**
  * Download a video from a URL using Apify, RapidAPI, falling back to bundled yt-dlp
- * @param {string} url - The reel/video URL
+ * @param {string} rawUrl - The reel/video URL
  * @returns {Promise<string[]>} Paths to the downloaded video file(s)
  */
-async function downloadVideo(url) {
+async function downloadVideo(rawUrl) {
+  const url = sanitizeVideoUrl(rawUrl);
   const baseFilename = uuidv4();
   const outputTemplate = path.join(UPLOADS_DIR, `${baseFilename}.%(ext)s`);
   const mp4Output = path.join(UPLOADS_DIR, `${baseFilename}.mp4`);
 
   try {
     let files = [];
+    const http = require('http');
     const https = require('https');
     
     // Helper to download files
     const downloadFile = (fileUrl, outputPath) => {
       return new Promise((resolve, reject) => {
+        const parsedUrl = new URL(fileUrl);
+        const client = parsedUrl.protocol === 'http:' ? http : https;
         const file = fs.createWriteStream(outputPath);
-        https.get(fileUrl, response => {
+        client.get(fileUrl, response => {
           if (response.statusCode !== 200) {
+            file.close();
+            fs.unlink(outputPath, () => {});
             return reject(new Error(`Failed to download from CDN: ${response.statusCode}`));
           }
           response.pipe(file);
@@ -43,6 +97,7 @@ async function downloadVideo(url) {
             resolve(outputPath);
           });
         }).on('error', err => {
+          file.close();
           fs.unlink(outputPath, () => {});
           reject(err);
         });
