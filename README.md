@@ -24,37 +24,49 @@ An AI-powered agent that watches your saved reels, extracts ALL important inform
    GEMINI_API_KEY=your_gemini_key_here
    APIFY_API_TOKEN=your_apify_token_here
    RAPIDAPI_KEY=your_rapidapi_key_here
+
+   # Security & Authentication (Recommended for Production)
+   FIREBASE_PROJECT_ID=your_firebase_project_id_here
+   ALLOWED_ORIGINS=http://localhost:5173,http://localhost:5174
    ```
 
 3. **Install dependencies:**
    ```bash
+   # Install backend dependencies
    npm install
+
+   # Install client frontend dependencies
+   npm install --prefix client
    ```
+
 4. **Run the app:**
    ```bash
+   # Run backend API server (:3005)
    npm run dev
+
+   # Run modern React + Vite frontend (:5173) in a separate terminal
+   npm run dev --prefix client
    ```
 
-5. Open `http://localhost:3005` in your browser
+5. Open `http://localhost:5173` (React landing) or `http://localhost:3005/dashboard` (Vanilla JS dashboard).
 
-## URL Download Support
+## Security & Protection
 
-To analyze reels from URLs, the backend uses a resilient, multi-pronged downloading strategy to bypass datacenter blocking (like 403 / Bot Challenges):
-
-- **Instagram URLs:** Uses the `apify-client` to trigger cloud scrapers that automatically detect whether the post is a Reel (downloads `.mp4`) or a Carousel (downloads an array of `.jpg`s).
-- **YouTube URLs:** Uses a dedicated `RapidAPI` endpoint to fetch the `.mp3` audio track directly from YouTube's CDN, completely avoiding strict video bot-blocks while still allowing Gemini to generate a full transcript and summary.
-- **Fallback:** Bundles `youtube-dl-exec` (yt-dlp) as a final fallback layer.
-
-Without any downloader configured, you can still upload video files directly from the dashboard.
+ReelBrain includes multi-layer defensive security controls:
+- **SSRF & Command Injection Protection**: Strict URL normalization and domain allowlisting (Instagram and YouTube only) before triggering downloaders.
+- **Backend Authentication Gate**: Firebase Admin ID token verification (`authMiddleware`) on analysis endpoints.
+- **Rate Limiting & DoS Mitigation**: Built-in sliding-window IP rate limiter (20 requests / 15 minutes) and 1MB JSON payload limit.
+- **XSS Sanitization**: Escaped DOM attribute bindings and strictly protocol-checked (`http`/`https`) link rendering.
+- **Container Hardening**: Dockerfile runs under unprivileged `node` user on Node 22 LTS.
 
 ## Tech Stack
 
 | Layer | Tech |
 |-------|------|
-| Frontend | Vanilla JS, HTML, Custom CSS (Glassmorphism), Firebase Firestore |
-| Backend | Node.js + Express |
+| Frontend | React 19, Vite 8, Tailwind CSS v4, Lucide Icons, Vanilla JS Dashboard |
+| Backend | Node.js + Express, Firebase Admin SDK, In-Memory Rate Limiter |
 | AI | Google Gemini 3.1 Flash lite |
-| Infrastructure| Apify Client, RapidAPI, Node-Fetch |
+| Infrastructure | Apify Client, RapidAPI, bundled yt-dlp, Docker |
 
 ## Deployment
 

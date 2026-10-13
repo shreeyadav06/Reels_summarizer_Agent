@@ -14,6 +14,7 @@
     "cors": "^2.8.6",
     "dotenv": "^16.4.7",
     "express": "^5.2.1",
+    "firebase-admin": "^14.5.0",
     "instagram-url-direct": "^2.0.7",
     "multer": "^2.4.0",
     "uuid": "^11.1.0",
