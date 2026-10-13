@@ -7,7 +7,8 @@ const reelsRouter = require('./routes/reels');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3005;
+const PORT = parseInt(process.env.PORT, 10) || 3005;
+const HOST = '0.0.0.0';
 
 // Basic security headers (defense against sniffing, clickjacking)
 app.use((req, res, next) => {
@@ -78,6 +79,11 @@ if (fs.existsSync(dashboardPath)) {
   app.use('/dashboard', express.static(dashboardPath));
 }
 
+// Health check for Render / monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Simple health check for the root URL
 app.get('/', (req, res) => {
   res.send('ReelBrain API is running!');
@@ -88,6 +94,6 @@ app.use((req, res) => {
   res.status(404).send('Not found');
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🎬 Reel Summarizer Agent running at http://localhost:${PORT}\n`);
+app.listen(PORT, HOST, () => {
+  console.log(`\n🎬 Reel Summarizer Agent running at http://${HOST}:${PORT}\n`);
 });

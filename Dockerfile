@@ -25,7 +25,8 @@ RUN chown -R node:node /app
 # Switch to unprivileged user
 USER node
 
-# Expose port and start
-EXPOSE 3005
+# Expose port and start (3005 default, 10000 Render standard)
+ENV PORT=3005
+EXPOSE 3005 10000
 CMD ["npm", "start"]
 
