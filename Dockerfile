@@ -1,19 +1,31 @@
-FROM node:18
+FROM node:22-bookworm-slim
 
 # Install Python and dependencies
-RUN apt-get update && apt-get install -y python3 python3-pip ffmpeg
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip3 install --no-cache-dir yt-dlp instaloader --break-system-packages
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and install Node dependencies
+# Copy package files and install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci --omit=dev || npm install --omit=dev
 
-# Copy application code (including the server directory)
+# Copy application code
 COPY . .
+
+# Ensure app directory permissions for node user
+RUN chown -R node:node /app
+
+# Switch to unprivileged user
+USER node
 
 # Expose port and start
 EXPOSE 3005
 CMD ["npm", "start"]
+
